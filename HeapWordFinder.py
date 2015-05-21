@@ -40,7 +40,7 @@ def main():
     HWF = HeapWordFinder()
 
     t0 = time.clock()
-    HWF.append_text("smallText.txt")
+    HWF.append_text("largeText.txt")
     t_insert = (time.clock() - t0) * 1e3
 
     t0 = time.clock()

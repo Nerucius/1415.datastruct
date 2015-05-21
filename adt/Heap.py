@@ -112,7 +112,14 @@ class Heap(object):
         while abs(mn-mx) > 1:
             mid = mn + (mx-mn)/2
 
-            #print mn, mid, mx
+            # If we're searching very few elements, just do a linear search gosh
+            # Instead of shredding the CPU cache like a fucking psycho we take advantage
+            # of data-locality
+            if mx - mn < 16:
+                for item in self[mn:mx]:
+                    if item[0] == word:
+                        return item
+                return None
 
             if self[mid][0] == word:
                 return self[mid]

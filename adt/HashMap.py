@@ -1,4 +1,5 @@
 from random import randint
+from time import clock
 
 # Constants
 KEY = 0
@@ -31,7 +32,7 @@ class HashMap(object):
         self._fillrate = 0
 
     def put(self, key, value):
-        print self._size, "-",
+        # print self._size, "-",
         hs = self.hash(key)
 
         # Python sometimes fucks up tuples, wrapping them in an array
@@ -40,18 +41,18 @@ class HashMap(object):
             value = value[0]
 
         if not self._array[hs]:
-            print "new bucket:\t", hs, key, value
+            # print "new bucket:\t", hs, key, value
             self._array[hs] = [[key, [value]]]  # Create a new bucket
 
         else:
             for entry in self._array[hs]:  # Looking at entries inside the bucket
                 if entry[KEY].lower() == key.lower():
-                    print "new value:\t", hs, key, value
+                    # print "new value:\t", hs, key, value
                     entry[VAL] += [value]  # If the key matches, add the new value to the value array
                     return
 
             # If not found, add new entry in the bucket
-            print "new entry:\t", hs, key, value
+            # print "new entry:\t", hs, key, value
             self._array[hs] += [[key, [value]]]
 
         self.check_fillrate()
@@ -67,7 +68,8 @@ class HashMap(object):
         return None
 
     def hash(self, key):
-        """ Implementation of the DJB2 hashing algorithm """
+        """ Implementation of the DJB2 hashing algorithm. Certainly not the best hash ever but
+            works good enough, and it's *FAST* """
         adr = 5381
         for c in key:
             adr = ((adr << 5) + adr) + ord(c)
@@ -94,10 +96,13 @@ class HashMap(object):
 
     @staticmethod
     def random_words(count):
+        index = randint(0, 349899)
+
         f = open("../dictionary.txt")
         lines = f.readlines()
         for i in range(count):
-            yield lines[randint(0, 349900)].split()[0]
+            yield lines[index].split()[0]
+            index = (index + 1) % 349900
 
     def get_array(self):
         return self._array
@@ -106,7 +111,7 @@ class HashMap(object):
         """ Rehashes the entire table if the fill rate surpasses an imposed limit.
             By doing this we can guarantee a quick lookup time.
         """
-        print "Rehashing to:",self._size*2
+        # print "Rehashing to:", self._size * 2
 
         self._size *= 2
         new_hash = HashMap(self._size)
@@ -116,6 +121,7 @@ class HashMap(object):
                 for entry in bucket:
                     for val in entry[VAL]:
                         # Needs to be put value per value or python freaks out
+                        # Some perf is lost but whatchu' gon' do
                         new_hash.put(entry[KEY], val)
 
         self._array = new_hash.get_array()
@@ -141,9 +147,6 @@ def test():
     for word in hashmap.random_words(256):
         hashmap.put(word, (0, randint(0, 32)))
 
-    hashmap.put("Alex Gray", (0, 1))
-    hashmap.put("Alex Gray", (0, 2))
-
     print hashmap
     print hashmap.get_fillrate()
 
@@ -151,6 +154,11 @@ def test():
         found = hashmap.get(word)
         if found:
             print word, "found"
+
+    t0 = clock()
+    for word in hashmap.random_words(1000000):
+        hashmap.hash(word)
+    print "Hashed 1 Million words in:", (clock()-t0)*1e3,"ms"
 
 
 if __name__ == "__main__":
