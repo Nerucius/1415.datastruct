@@ -105,7 +105,7 @@ class Heap(object):
         return self.bin_search(word)
 
     def bin_search(self, word, mn=0, mx=-1):
-        """ Supah-Fast binary search biatch """
+        """ Super-Fast binary search """
         if mx == -1:
             mx = len(self) - 1
 
