@@ -27,7 +27,8 @@ class Heap(object):
 
     def up_heap(self, i):
         """ Recursive function that moves a node up the heap if the parent is smaller """
-        # Bounds check
+        # Bounds check, if we reach the top of the tree or the parent would be out
+        # of range, exit
         if parent(i) < 0 or i == 0:
             return
 
